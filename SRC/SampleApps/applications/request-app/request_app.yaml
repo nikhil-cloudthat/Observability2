@@ -1,0 +1,43 @@
+---
+
+# Deployment for the Request Application
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: request-app
+  namespace: default
+  labels:
+    app: request-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: request-app
+  template:
+    metadata:
+      labels:
+        app: request-app
+    spec:
+      # Reference the Docker Hub secret so that image pulls are authenticated
+      containers:
+      - name: request-app
+        image: gokuraj/request:v1                       # gokuraj/app:3 is working good   | gokuraj/newapp:2   is good
+        ports:
+        - containerPort: 5000
+        env:
+        - name: ALLOY_ENDPOINT
+          value: "http://alloy:4323"
+---
+# Service to expose the request Application
+apiVersion: v1
+kind: Service
+metadata:
+  name: request-app
+  namespace: default
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 5000
+  selector:
+    app: request-app
